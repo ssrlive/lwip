@@ -187,6 +187,10 @@
 		3AA917EC207870E900ABA984 /* zepif.c in Sources */ = {isa = PBXBuildFile; fileRef = 3AA9179A207870E900ABA984 /* zepif.c */; };
 		3AA917F42078766900ABA984 /* lwipopts.h in Headers */ = {isa = PBXBuildFile; fileRef = 3AA917F32078766900ABA984 /* lwipopts.h */; };
 		3AA917F52078766900ABA984 /* lwipopts.h in Headers */ = {isa = PBXBuildFile; fileRef = 3AA917F32078766900ABA984 /* lwipopts.h */; };
+		3AA917F920787D5100ABA984 /* sys_arch.h in Headers */ = {isa = PBXBuildFile; fileRef = 3AA917F720787D5100ABA984 /* sys_arch.h */; };
+		3AA917FA20787D5100ABA984 /* sys_arch.h in Headers */ = {isa = PBXBuildFile; fileRef = 3AA917F720787D5100ABA984 /* sys_arch.h */; };
+		3AA917FB20787D5100ABA984 /* cc.h in Headers */ = {isa = PBXBuildFile; fileRef = 3AA917F820787D5100ABA984 /* cc.h */; };
+		3AA917FC20787D5100ABA984 /* cc.h in Headers */ = {isa = PBXBuildFile; fileRef = 3AA917F820787D5100ABA984 /* cc.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -286,6 +290,8 @@
 		3AA91799207870E900ABA984 /* slipif.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = slipif.c; sourceTree = "<group>"; };
 		3AA9179A207870E900ABA984 /* zepif.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zepif.c; sourceTree = "<group>"; };
 		3AA917F32078766900ABA984 /* lwipopts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lwipopts.h; path = ../test/fuzz/lwipopts.h; sourceTree = "<group>"; };
+		3AA917F720787D5100ABA984 /* sys_arch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sys_arch.h; path = include/arch/sys_arch.h; sourceTree = "<group>"; };
+		3AA917F820787D5100ABA984 /* cc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cc.h; path = include/arch/cc.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -311,6 +317,7 @@
 			children = (
 				3AA913A12078517400ABA984 /* src */,
 				3A6EB14C20784E3300763A08 /* lwip */,
+				3AA917F620787D2900ABA984 /* xcode */,
 				3A6EB14B20784E3300763A08 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -339,7 +346,6 @@
 				3AA9143A2078546700ABA984 /* api */,
 				3AA914122078546600ABA984 /* core */,
 				3AA913CF2078546600ABA984 /* Filelists.mk */,
-				3AA917F32078766900ABA984 /* lwipopts.h */,
 				3AA913A22078546600ABA984 /* FILES */,
 				3AA9176F207870E900ABA984 /* netif */,
 				3AA917682078703000ABA984 /* arch */,
@@ -500,6 +506,16 @@
 			path = polarssl;
 			sourceTree = "<group>";
 		};
+		3AA917F620787D2900ABA984 /* xcode */ = {
+			isa = PBXGroup;
+			children = (
+				3AA917F820787D5100ABA984 /* cc.h */,
+				3AA917F720787D5100ABA984 /* sys_arch.h */,
+				3AA917F32078766900ABA984 /* lwipopts.h */,
+			);
+			name = xcode;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -507,8 +523,10 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3AA917F920787D5100ABA984 /* sys_arch.h in Headers */,
 				3AA917F42078766900ABA984 /* lwipopts.h in Headers */,
 				3AA9176D2078703100ABA984 /* sys_arch.h in Headers */,
+				3AA917FB20787D5100ABA984 /* cc.h in Headers */,
 				3A6EB14F20784E3300763A08 /* lwip.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -517,8 +535,10 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3AA917FA20787D5100ABA984 /* sys_arch.h in Headers */,
 				3AA917F52078766900ABA984 /* lwipopts.h in Headers */,
 				3AA9176E2078703100ABA984 /* sys_arch.h in Headers */,
+				3AA917FC20787D5100ABA984 /* cc.h in Headers */,
 				3A6EB1622078501800763A08 /* lwip.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
