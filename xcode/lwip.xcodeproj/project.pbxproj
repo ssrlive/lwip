@@ -554,6 +554,7 @@
 				3A6EB14620784E3300763A08 /* Frameworks */,
 				3A6EB14720784E3300763A08 /* Headers */,
 				3A6EB14820784E3300763A08 /* Resources */,
+				3AA918032078985700ABA984 /* Copy headers with path */,
 			);
 			buildRules = (
 			);
@@ -572,6 +573,7 @@
 				3A6EB15620784F9100763A08 /* Frameworks */,
 				3A6EB15720784F9100763A08 /* Headers */,
 				3A6EB15820784F9100763A08 /* Resources */,
+				3AA91804207899FE00ABA984 /* Copy headers with path */,
 			);
 			buildRules = (
 			);
@@ -639,6 +641,37 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3AA918032078985700ABA984 /* Copy headers with path */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy headers with path";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nexport FRAMEWORK_PATH=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework\"\n\n# Create the path to the real Headers dir\nmkdir -p \"${FRAMEWORK_PATH}/Headers\"\n\n# Copy the public headers into the framework\n/bin/cp -a \"${SRCROOT}/../src/include/\" \\\n    \"${FRAMEWORK_PATH}/Headers\"\n";
+		};
+		3AA91804207899FE00ABA984 /* Copy headers with path */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy headers with path";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nexport FRAMEWORK_PATH=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework\"\n\n# Create the path to the real Headers dir\nmkdir -p \"${FRAMEWORK_PATH}/Versions/A/Headers\"\n\n# Copy the public headers into the framework\n/bin/cp -a \"${SRCROOT}/../src/include/\" \\\n    \"${FRAMEWORK_PATH}/Versions/A/Headers\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		3A6EB14520784E3300763A08 /* Sources */ = {
