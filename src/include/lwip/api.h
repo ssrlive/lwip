@@ -73,6 +73,10 @@ extern "C" {
 #define NETCONN_FLAG_NON_BLOCKING             0x02
 /** Was the last connect action a non-blocking one? */
 #define NETCONN_FLAG_IN_NONBLOCKING_CONNECT   0x04
+#if LWIP_NETCONN_FULLDUPLEX
+  /** The mbox of this netconn is being deallocated, don't use it anymore */
+#define NETCONN_FLAG_MBOXINVALID              0x08
+#endif /* LWIP_NETCONN_FULLDUPLEX */
 /** If a nonblocking write has been rejected before, poll_tcp needs to
     check if the netconn is writable again */
 #define NETCONN_FLAG_CHECK_WRITESPACE         0x10
@@ -237,6 +241,11 @@ struct netconn {
       by the application thread */
   sys_mbox_t acceptmbox;
 #endif /* LWIP_TCP */
+#if LWIP_NETCONN_FULLDUPLEX
+  /** number of threads waiting on an mbox. This is required to unblock
+      all threads when closing while threads are waiting. */
+  int mbox_threads_waiting;
+#endif
   /** only used for socket layer */
 #if LWIP_SOCKET
   int socket;
@@ -302,6 +311,7 @@ struct netvector {
 #define netconn_new_with_callback(t, c) netconn_new_with_proto_and_callback(t, 0, c)
 struct netconn *netconn_new_with_proto_and_callback(enum netconn_type t, u8_t proto,
                                              netconn_callback callback);
+err_t   netconn_prepare_delete(struct netconn *conn);
 err_t   netconn_delete(struct netconn *conn);
 /** Get the type of a netconn (as enum netconn_type). */
 #define netconn_type(conn) (conn->type)
