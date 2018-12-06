@@ -51,6 +51,8 @@
 #include "lwip/mem.h"
 #include "lwip/init.h"
 
+#include <stdio.h>
+
 /** This string is passed in the HTTP header as "User-Agent: " */
 #ifndef ALTCP_PROXYCONNECT_CLIENT_AGENT
 #define ALTCP_PROXYCONNECT_CLIENT_AGENT "lwIP/" LWIP_VERSION_STRING " (http://savannah.nongnu.org/projects/lwip)"
@@ -161,6 +163,7 @@ altcp_proxyconnect_lower_connected(void *arg, struct altcp_pcb *inner_conn, err_
   struct altcp_pcb *conn = (struct altcp_pcb *)arg;
   if (conn && conn->state) {
     LWIP_ASSERT("pcb mismatch", conn->inner_conn == inner_conn);
+    LWIP_UNUSED_ARG(inner_conn); /* for LWIP_NOASSERT */
     /* upper connected is called when handshake is done */
     if (err != ERR_OK) {
       if (conn->connected) {
@@ -252,6 +255,7 @@ altcp_proxyconnect_lower_sent(void *arg, struct altcp_pcb *inner_conn, u16_t len
   if (conn) {
     altcp_proxyconnect_state_t *state = (altcp_proxyconnect_state_t *)conn->state;
     LWIP_ASSERT("pcb mismatch", conn->inner_conn == inner_conn);
+    LWIP_UNUSED_ARG(inner_conn); /* for LWIP_NOASSERT */
     if (!state || !(state->flags & ALTCP_PROXYCONNECT_FLAGS_HANDSHAKE_DONE)) {
       /* @todo: do something here? */
       return ERR_OK;
@@ -274,6 +278,7 @@ altcp_proxyconnect_lower_poll(void *arg, struct altcp_pcb *inner_conn)
   struct altcp_pcb *conn = (struct altcp_pcb *)arg;
   if (conn) {
     LWIP_ASSERT("pcb mismatch", conn->inner_conn == inner_conn);
+    LWIP_UNUSED_ARG(inner_conn); /* for LWIP_NOASSERT */
     if (conn->poll) {
       return conn->poll(conn->arg, conn);
     }
@@ -381,7 +386,7 @@ altcp_proxyconnect_new_tcp(struct altcp_proxyconnect_config *config, u8_t ip_typ
 /** Allocator function to allocate a proxy connect altcp pcb connecting directly
  * via tcp to the proxy.
  *
- * The returned pcb is a chain: <altcp_proxyconnect> - <altcp_tcp> - <tcp pcb>
+ * The returned pcb is a chain: altcp_proxyconnect - altcp_tcp - tcp pcb
  *
  * This function is meant for use with @ref altcp_new.
  *
@@ -399,7 +404,7 @@ altcp_proxyconnect_alloc(void *arg, u8_t ip_type)
 
 /** Allocator function to allocate a TLS connection through a proxy.
  *
- * The returned pcb is a chain: <altcp_tls> - <altcp_proxyconnect> - <altcp_tcp> - <tcp pcb>
+ * The returned pcb is a chain: altcp_tls - altcp_proxyconnect - altcp_tcp - tcp pcb
  *
  * This function is meant for use with @ref altcp_new.
  *
@@ -415,7 +420,7 @@ altcp_proxyconnect_tls_alloc(void *arg, u8_t ip_type)
   struct altcp_pcb *tls_pcb;
 
   proxy_pcb = altcp_proxyconnect_new_tcp(&cfg->proxy, ip_type);
-  tls_pcb = altcp_tls_new(cfg->tls_config, proxy_pcb);
+  tls_pcb = altcp_tls_wrap(cfg->tls_config, proxy_pcb);
 
   if (tls_pcb == NULL) {
     altcp_close(proxy_pcb);

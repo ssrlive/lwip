@@ -230,7 +230,7 @@ struct lwip_socket_multicast_pair {
   ip4_addr_t multi_addr;
 };
 
-struct lwip_socket_multicast_pair socket_ipv4_multicast_memberships[LWIP_SOCKET_MAX_MEMBERSHIPS];
+static struct lwip_socket_multicast_pair socket_ipv4_multicast_memberships[LWIP_SOCKET_MAX_MEMBERSHIPS];
 
 static int  lwip_socket_register_membership(int s, const ip4_addr_t *if_addr, const ip4_addr_t *multi_addr);
 static void lwip_socket_unregister_membership(int s, const ip4_addr_t *if_addr, const ip4_addr_t *multi_addr);
@@ -249,7 +249,7 @@ struct lwip_socket_multicast_mld6_pair {
   ip6_addr_t multi_addr;
 };
 
-struct lwip_socket_multicast_mld6_pair socket_ipv6_multicast_memberships[LWIP_SOCKET_MAX_MEMBERSHIPS];
+static struct lwip_socket_multicast_mld6_pair socket_ipv6_multicast_memberships[LWIP_SOCKET_MAX_MEMBERSHIPS];
 
 static int  lwip_socket_register_mld6_membership(int s, unsigned int if_idx, const ip6_addr_t *multi_addr);
 static void lwip_socket_unregister_mld6_membership(int s, unsigned int if_idx, const ip6_addr_t *multi_addr);
@@ -522,14 +522,14 @@ alloc_socket(struct netconn *newconn, int accepted)
          after having marked it as used. */
       SYS_ARCH_UNPROTECT(lev);
       sockets[i].lastdata.pbuf = NULL;
-#if LWIP_SOCKET_SELECT
+#if LWIP_SOCKET_SELECT || LWIP_SOCKET_POLL
       LWIP_ASSERT("sockets[i].select_waiting == 0", sockets[i].select_waiting == 0);
       sockets[i].rcvevent   = 0;
       /* TCP sendbuf is empty, but the socket is not yet writable until connected
        * (unless it has been created by accept()). */
       sockets[i].sendevent  = (NETCONNTYPE_GROUP(newconn->type) == NETCONN_TCP ? (accepted != 0) : 1);
       sockets[i].errevent   = 0;
-#endif /* LWIP_SOCKET_SELECT */
+#endif /* LWIP_SOCKET_SELECT || LWIP_SOCKET_POLL */
       return i + LWIP_SOCKET_OFFSET;
     }
     SYS_ARCH_UNPROTECT(lev);
@@ -1305,7 +1305,7 @@ lwip_recvmsg(int s, struct msghdr *message, int flags)
     if ((message->msg_iov[i].iov_base == NULL) || ((ssize_t)message->msg_iov[i].iov_len <= 0) ||
         ((size_t)(ssize_t)message->msg_iov[i].iov_len != message->msg_iov[i].iov_len) ||
         ((ssize_t)(buflen + (ssize_t)message->msg_iov[i].iov_len) <= 0)) {
-      sock_set_errno(sock, ERR_VAL);
+      sock_set_errno(sock, err_to_errno(ERR_VAL));
       done_socket(sock);
       return -1;
     }
@@ -2304,7 +2304,6 @@ lwip_poll_dec_sockets_used(struct pollfd *fds, nfds_t nfds)
     /* Go through each struct pollfd in the array. */
     for (fdi = 0; fdi < nfds; fdi++) {
       struct lwip_sock *sock = tryget_socket_unconn_nouse(fds[fdi].fd);
-      LWIP_ASSERT("socket gone at the end of select", sock != NULL);
       if (sock != NULL) {
         done_socket(sock);
       }
@@ -2823,7 +2822,7 @@ lwip_getsockopt(int s, int level, int optname, void *optval, socklen_t *optlen)
          LWIP_SETGETSOCKOPT_DATA_VAR_REF(data).optlen);
 #endif /* LWIP_MPU_COMPATIBLE */
 
-  /* maybe lwip_getsockopt_internal has changed err */
+  /* maybe lwip_getsockopt_impl has changed err */
   err = LWIP_SETGETSOCKOPT_DATA_VAR_REF(data).err;
   LWIP_SETGETSOCKOPT_DATA_VAR_FREE(data);
 #endif /* LWIP_TCPIP_CORE_LOCKING */
@@ -3264,7 +3263,7 @@ lwip_setsockopt(int s, int level, int optname, const void *optval, socklen_t opt
   }
   sys_arch_sem_wait((sys_sem_t *)(LWIP_SETGETSOCKOPT_DATA_VAR_REF(data).completed_sem), 0);
 
-  /* maybe lwip_getsockopt_internal has changed err */
+  /* maybe lwip_setsockopt_impl has changed err */
   err = LWIP_SETGETSOCKOPT_DATA_VAR_REF(data).err;
   LWIP_SETGETSOCKOPT_DATA_VAR_FREE(data);
 #endif  /* LWIP_TCPIP_CORE_LOCKING */

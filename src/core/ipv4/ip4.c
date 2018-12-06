@@ -163,6 +163,9 @@ ip4_route(const ip4_addr_t *dest)
   }
 #endif /* LWIP_MULTICAST_TX_OPTIONS */
 
+  /* bug #54569: in case LWIP_SINGLE_NETIF=1 and LWIP_DEBUGF() disabled, the following loop is optimized away */
+  LWIP_UNUSED_ARG(dest);
+
   /* iterate through netifs */
   NETIF_FOREACH(netif) {
     /* is the netif up, does it have a link and a valid address? */
@@ -181,10 +184,10 @@ ip4_route(const ip4_addr_t *dest)
   }
 
 #if LWIP_NETIF_LOOPBACK && !LWIP_HAVE_LOOPIF
-  /* loopif is disabled, looopback traffic is passed through any netif */
+  /* loopif is disabled, loopback traffic is passed through any netif */
   if (ip4_addr_isloopback(dest)) {
     /* don't check for link on loopback traffic */
-    if (netif_default != NULL && netif_is_up(netif_default)) {
+    if ((netif_default != NULL) && netif_is_up(netif_default)) {
       return netif_default;
     }
     /* default netif is not up, just use any netif for loopback traffic */
@@ -211,7 +214,7 @@ ip4_route(const ip4_addr_t *dest)
 #endif /* !LWIP_SINGLE_NETIF */
 
   if ((netif_default == NULL) || !netif_is_up(netif_default) || !netif_is_link_up(netif_default) ||
-      ip4_addr_isany_val(*netif_ip4_addr(netif_default))) {
+      ip4_addr_isany_val(*netif_ip4_addr(netif_default)) || ip4_addr_isloopback(dest)) {
     /* No matching netif found and default netif is not usable.
        If this is not good enough for you, use LWIP_HOOK_IP4_ROUTE() */
     LWIP_DEBUGF(IP_DEBUG | LWIP_DBG_LEVEL_SERIOUS, ("ip4_route: No route to %"U16_F".%"U16_F".%"U16_F".%"U16_F"\n",
@@ -237,13 +240,19 @@ ip4_canforward(struct pbuf *p)
 {
   u32_t addr = lwip_htonl(ip4_addr_get_u32(ip4_current_dest_addr()));
 
+#ifdef LWIP_HOOK_IP4_CANFORWARD
+  int ret = LWIP_HOOK_IP4_CANFORWARD(p, addr);
+  if (ret >= 0) {
+    return ret;
+  }
+#endif /* LWIP_HOOK_IP4_CANFORWARD */
+
   if (p->flags & PBUF_FLAG_LLBCAST) {
     /* don't route link-layer broadcasts */
     return 0;
   }
-  if ((p->flags & PBUF_FLAG_LLMCAST) && !IP_MULTICAST(addr)) {
-    /* don't route link-layer multicasts unless the destination address is an IP
-       multicast address */
+  if ((p->flags & PBUF_FLAG_LLMCAST) || IP_MULTICAST(addr)) {
+    /* don't route link-layer multicasts (use LWIP_HOOK_IP4_CANFORWARD instead) */
     return 0;
   }
   if (IP_EXPERIMENTAL(addr)) {
@@ -1106,16 +1115,16 @@ ip4_debug_print(struct pbuf *p)
                          lwip_ntohs(IPH_CHKSUM(iphdr))));
   LWIP_DEBUGF(IP_DEBUG, ("+-------------------------------+\n"));
   LWIP_DEBUGF(IP_DEBUG, ("|  %3"U16_F"  |  %3"U16_F"  |  %3"U16_F"  |  %3"U16_F"  | (src)\n",
-                         ip4_addr1_16(&iphdr->src),
-                         ip4_addr2_16(&iphdr->src),
-                         ip4_addr3_16(&iphdr->src),
-                         ip4_addr4_16(&iphdr->src)));
+                         ip4_addr1_16_val(iphdr->src),
+                         ip4_addr2_16_val(iphdr->src),
+                         ip4_addr3_16_val(iphdr->src),
+                         ip4_addr4_16_val(iphdr->src)));
   LWIP_DEBUGF(IP_DEBUG, ("+-------------------------------+\n"));
   LWIP_DEBUGF(IP_DEBUG, ("|  %3"U16_F"  |  %3"U16_F"  |  %3"U16_F"  |  %3"U16_F"  | (dest)\n",
-                         ip4_addr1_16(&iphdr->dest),
-                         ip4_addr2_16(&iphdr->dest),
-                         ip4_addr3_16(&iphdr->dest),
-                         ip4_addr4_16(&iphdr->dest)));
+                         ip4_addr1_16_val(iphdr->dest),
+                         ip4_addr2_16_val(iphdr->dest),
+                         ip4_addr3_16_val(iphdr->dest),
+                         ip4_addr4_16_val(iphdr->dest)));
   LWIP_DEBUGF(IP_DEBUG, ("+-------------------------------+\n"));
 }
 #endif /* IP_DEBUG */

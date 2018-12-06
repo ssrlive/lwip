@@ -41,6 +41,10 @@
 #ifndef LWIP_HDR_PROT_IEEE_H
 #define LWIP_HDR_PROT_IEEE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @ingroup ieee
  * A list of often ethtypes (although lwIP does not use all of them).
@@ -49,7 +53,7 @@ enum lwip_ieee_eth_type {
   /** Internet protocol v4 */
   ETHTYPE_IP        = 0x0800U,
   /** Address resolution protocol */
-  ETHTYPE_ARP       = 0x0806U, 
+  ETHTYPE_ARP       = 0x0806U,
   /** Wake on lan */
   ETHTYPE_WOL       = 0x0842U,
   /** RARP */
@@ -79,5 +83,9 @@ enum lwip_ieee_eth_type {
   /** Q-in-Q, 802.1ad */
   ETHTYPE_QINQ      = 0x9100U
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LWIP_HDR_PROT_IEEE_H */

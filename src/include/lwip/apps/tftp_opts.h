@@ -11,7 +11,7 @@
  *
  */
 
-/* 
+/*
  * Redistribution and use in source and binary forms, with or without
  * modification,are permitted provided that the following conditions are met:
  *
@@ -82,7 +82,7 @@
  * TFTP timer cyclic interval
  */
 #if !defined TFTP_TIMER_MSECS || defined __DOXYGEN__
-#define TFTP_TIMER_MSECS      50
+#define TFTP_TIMER_MSECS      (TFTP_TIMEOUT_MSECS / 10)
 #endif
 
 /**
@@ -96,7 +96,7 @@
  * Max. length of TFTP mode
  */
 #if !defined TFTP_MAX_MODE_LEN || defined __DOXYGEN__
-#define TFTP_MAX_MODE_LEN     7
+#define TFTP_MAX_MODE_LEN     10
 #endif
 
 /**

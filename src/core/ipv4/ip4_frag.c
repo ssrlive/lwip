@@ -677,7 +677,8 @@ ip4_reass(struct pbuf *p)
   return NULL;
 
 nullreturn_ipr:
-  if ((ipr != NULL) && (ipr->p == NULL)) {
+  LWIP_ASSERT("ipr != NULL", ipr != NULL);
+  if (ipr->p == NULL) {
     /* dropped pbuf after creating a new datagram entry: remove the entry, too */
     LWIP_ASSERT("not firstalthough just enqueued", ipr == reassdatagrams);
     ip_reass_dequeue_datagram(ipr, NULL);
@@ -752,6 +753,7 @@ ip4_frag(struct pbuf *p, struct netif *netif, const ip4_addr_t *dest)
   int last;
   u16_t poff = IP_HLEN;
   u16_t tmp;
+  int mf_set;
 
   original_iphdr = (struct ip_hdr *)p->payload;
   iphdr = original_iphdr;
@@ -764,7 +766,8 @@ ip4_frag(struct pbuf *p, struct netif *netif, const ip4_addr_t *dest)
   /* Save original offset */
   tmp = lwip_ntohs(IPH_OFFSET(iphdr));
   ofo = tmp & IP_OFFMASK;
-  LWIP_ERROR("ip_frag(): MF already set", (tmp & IP_MF) == 0, return ERR_VAL);
+  /* already fragmented? if so, the last fragment we create must have MF, too */
+  mf_set = tmp & IP_MF;
 
   left = (u16_t)(p->tot_len - IP_HLEN);
 
@@ -799,7 +802,7 @@ ip4_frag(struct pbuf *p, struct netif *netif, const ip4_addr_t *dest)
       goto memerr;
     }
     LWIP_ASSERT("this needs a pbuf in one piece!",
-                (p->len >= (IP_HLEN)));
+                (rambuf->len >= (IP_HLEN)));
     SMEMCPY(rambuf->payload, original_iphdr, IP_HLEN);
     iphdr = (struct ip_hdr *)rambuf->payload;
 
@@ -850,7 +853,8 @@ ip4_frag(struct pbuf *p, struct netif *netif, const ip4_addr_t *dest)
 
     /* Set new offset and MF flag */
     tmp = (IP_OFFMASK & (ofo));
-    if (!last) {
+    if (!last || mf_set) {
+      /* the last fragment has MF set if the input frame had it */
       tmp = tmp | IP_MF;
     }
     IPH_OFFSET_SET(iphdr, lwip_htons(tmp));

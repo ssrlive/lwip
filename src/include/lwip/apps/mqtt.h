@@ -116,7 +116,7 @@ typedef enum
  * @ingroup mqtt
  * Function prototype for mqtt connection status callback. Called when
  * client has connected to the server after initiating a mqtt connection attempt by
- * calling mqtt_connect() or when connection is closed by server or an error
+ * calling mqtt_client_connect() or when connection is closed by server or an error
  *
  * @param client MQTT client itself
  * @param arg Additional argument to pass to the callback function
@@ -134,7 +134,7 @@ enum {
   MQTT_DATA_FLAG_LAST = 1
 };
 
-/** 
+/**
  * @ingroup mqtt
  * Function prototype for MQTT incoming publish data callback function. Called when data
  * arrives to a subscribed topic @see mqtt_subscribe
@@ -149,7 +149,7 @@ enum {
 typedef void (*mqtt_incoming_data_cb_t)(void *arg, const u8_t *data, u16_t len, u8_t flags);
 
 
-/** 
+/**
  * @ingroup mqtt
  * Function prototype for MQTT incoming publish function. Called when an incoming publish
  * arrives to a subscribed topic @see mqtt_subscribe

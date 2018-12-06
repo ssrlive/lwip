@@ -55,7 +55,10 @@
 #include "lwip/init.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
+#if LWIP_TCP && LWIP_CALLBACK_API
 
 /**
  * HTTPC_DEBUG: Enable debugging for HTTP client.
@@ -612,7 +615,7 @@ httpc_init_connection_addr(httpc_state_t **connection, const httpc_connection_t 
 }
 
 /**
- * @ingroup httpc 
+ * @ingroup httpc
  * HTTP client API: get a file by passing server IP address
  *
  * @param server_addr IP address of the server to connect
@@ -657,7 +660,7 @@ httpc_get_file(const ip_addr_t* server_addr, u16_t port, const char* uri, const 
 }
 
 /**
- * @ingroup httpc 
+ * @ingroup httpc
  * HTTP client API: get a file by passing server name as string (DNS name or IP address string)
  *
  * @param server_name server name as string (DNS name or IP address string)
@@ -799,7 +802,7 @@ httpc_fs_tcp_recv(void *arg, struct altcp_pcb *pcb, struct pbuf *p, err_t err)
 }
 
 /**
- * @ingroup httpc 
+ * @ingroup httpc
  * HTTP client API: get a file to disk by passing server IP address
  *
  * @param server_addr IP address of the server to connect
@@ -851,7 +854,7 @@ httpc_get_file_to_disk(const ip_addr_t* server_addr, u16_t port, const char* uri
 }
 
 /**
- * @ingroup httpc 
+ * @ingroup httpc
  * HTTP client API: get a file to disk by passing server name as string (DNS name or IP address string)
  *
  * @param server_name server name as string (DNS name or IP address string)
@@ -902,3 +905,5 @@ httpc_get_file_dns_to_disk(const char* server_name, u16_t port, const char* uri,
   return ERR_OK;
 }
 #endif /* LWIP_HTTPC_HAVE_FILE_IO */
+
+#endif /* LWIP_TCP && LWIP_CALLBACK_API */

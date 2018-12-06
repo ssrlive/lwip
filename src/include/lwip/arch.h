@@ -74,7 +74,7 @@
 
 /** Platform specific diagnostic output.\n
  * Note the default implementation pulls in printf, which may
- * in turn pull in a lot of standard libary code. In resource-constrained 
+ * in turn pull in a lot of standard libary code. In resource-constrained
  * systems, this should be defined to something less resource-consuming.
  */
 #ifndef LWIP_PLATFORM_DIAG
@@ -85,7 +85,7 @@
 
 /** Platform specific assertion handling.\n
  * Note the default implementation pulls in printf, fflush and abort, which may
- * in turn pull in a lot of standard libary code. In resource-constrained 
+ * in turn pull in a lot of standard libary code. In resource-constrained
  * systems, this should be defined to something less resource-consuming.
  */
 #ifndef LWIP_PLATFORM_ASSERT
@@ -221,12 +221,18 @@ typedef int ssize_t;
 #define lwip_isxdigit(c)          (lwip_isdigit(c) || lwip_in_range((c), 'a', 'f') || lwip_in_range((c), 'A', 'F'))
 #define lwip_islower(c)           lwip_in_range((c), 'a', 'z')
 #define lwip_isspace(c)           ((c) == ' ' || (c) == '\f' || (c) == '\n' || (c) == '\r' || (c) == '\t' || (c) == '\v')
+#define lwip_isupper(c)           lwip_in_range((c), 'A', 'Z')
+#define lwip_tolower(c)           (lwip_isupper(c) ? (c) - 'A' + 'a' : c)
+#define lwip_toupper(c)           (lwip_islower(c) ? (c) - 'a' + 'A' : c)
 #else
 #include <ctype.h>
 #define lwip_isdigit(c)           isdigit((unsigned char)(c))
 #define lwip_isxdigit(c)          isxdigit((unsigned char)(c))
 #define lwip_islower(c)           islower((unsigned char)(c))
 #define lwip_isspace(c)           isspace((unsigned char)(c))
+#define lwip_isupper(c)           isupper((unsigned char)(c))
+#define lwip_tolower(c)           tolower((unsigned char)(c))
+#define lwip_toupper(c)           toupper((unsigned char)(c))
 #endif
 
 /** C++ const_cast<target_type>(val) equivalent to remove constness from a value (GCC -Wcast-qual) */
@@ -354,7 +360,7 @@ extern "C" {
  * The file included BEFORE the struct is "arch/bpstruct.h".\n
  * The file included AFTER the struct is "arch/epstruct.h".\n
  * This can be used to implement struct packing on MS Visual C compilers, see
- * the Win32 port in the lwIP contrib repository for reference.
+ * the Win32 port in the lwIP/contrib subdir for reference.
  * For examples of packed struct declarations, see include/lwip/prot/ subfolder.\n
  * A port to GCC/clang is included in lwIP, if you use these compilers there is nothing to do here.
  */

@@ -118,6 +118,29 @@ lwip_strnstr(const char *buffer, const char *token, size_t n)
 }
 #endif
 
+#ifndef lwip_strnistr
+/**
+ * @ingroup sys_nonstandard
+ * lwIP default implementation for strnistr() non-standard function.
+ * This can be \#defined to strnistr() depending on your platform port.
+ */
+char *
+lwip_strnistr(const char *buffer, const char *token, size_t n)
+{
+  const char *p;
+  size_t tokenlen = strlen(token);
+  if (tokenlen == 0) {
+    return LWIP_CONST_CAST(char *, buffer);
+  }
+  for (p = buffer; *p && (p + tokenlen <= buffer + n); p++) {
+    if (lwip_strnicmp(p, token, tokenlen) == 0) {
+      return LWIP_CONST_CAST(char *, p);
+    }
+  }
+  return NULL;
+}
+#endif
+
 #ifndef lwip_stricmp
 /**
  * @ingroup sys_nonstandard
@@ -235,6 +258,6 @@ lwip_itoa(char *result, size_t bufsize, int number)
     return;
   }
   /* move from temporary buffer to output buffer (sign is not moved) */
-  memmove(res, tmp, (result + bufsize) - tmp);
+  memmove(res, tmp, (size_t)((result + bufsize) - tmp));
 }
 #endif

@@ -114,6 +114,7 @@ ethernet_input(struct pbuf *p, struct netif *netif)
 #if ETHARP_SUPPORT_VLAN
   if (type == PP_HTONS(ETHTYPE_VLAN)) {
     struct eth_vlan_hdr *vlan = (struct eth_vlan_hdr *)(((char *)ethhdr) + SIZEOF_ETH_HDR);
+    next_hdr_offset = SIZEOF_ETH_HDR + SIZEOF_VLAN_HDR;
     if (p->len <= SIZEOF_ETH_HDR + SIZEOF_VLAN_HDR) {
       /* a packet with only an ethernet/vlan header (or less) is not valid for us */
       ETHARP_STATS_INC(etharp.proterr);
@@ -135,7 +136,6 @@ ethernet_input(struct pbuf *p, struct netif *netif)
     }
 #endif /* defined(LWIP_HOOK_VLAN_CHECK) || defined(ETHARP_VLAN_CHECK) || defined(ETHARP_VLAN_CHECK_FN) */
     type = vlan->tpid;
-    next_hdr_offset = SIZEOF_ETH_HDR + SIZEOF_VLAN_HDR;
   }
 #endif /* ETHARP_SUPPORT_VLAN */
 
@@ -174,8 +174,8 @@ ethernet_input(struct pbuf *p, struct netif *netif)
       if (!(netif->flags & NETIF_FLAG_ETHARP)) {
         goto free_and_return;
       }
-      /* skip Ethernet header */
-      if ((p->len < next_hdr_offset) || pbuf_remove_header(p, next_hdr_offset)) {
+      /* skip Ethernet header (min. size checked above) */
+      if (pbuf_remove_header(p, next_hdr_offset)) {
         LWIP_DEBUGF(ETHARP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_LEVEL_WARNING,
                     ("ethernet_input: IPv4 packet dropped, too short (%"U16_F"/%"U16_F")\n",
                      p->tot_len, next_hdr_offset));
@@ -191,8 +191,8 @@ ethernet_input(struct pbuf *p, struct netif *netif)
       if (!(netif->flags & NETIF_FLAG_ETHARP)) {
         goto free_and_return;
       }
-      /* skip Ethernet header */
-      if ((p->len < next_hdr_offset) || pbuf_remove_header(p, next_hdr_offset)) {
+      /* skip Ethernet header (min. size checked above) */
+      if (pbuf_remove_header(p, next_hdr_offset)) {
         LWIP_DEBUGF(ETHARP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_LEVEL_WARNING,
                     ("ethernet_input: ARP response packet dropped, too short (%"U16_F"/%"U16_F")\n",
                      p->tot_len, next_hdr_offset));
@@ -273,8 +273,16 @@ ethernet_output(struct netif * netif, struct pbuf * p,
   struct eth_hdr *ethhdr;
   u16_t eth_type_be = lwip_htons(eth_type);
 
-#if ETHARP_SUPPORT_VLAN && defined(LWIP_HOOK_VLAN_SET)
-  s32_t vlan_prio_vid = LWIP_HOOK_VLAN_SET(netif, p, src, dst, eth_type);
+#if ETHARP_SUPPORT_VLAN && (defined(LWIP_HOOK_VLAN_SET) || LWIP_VLAN_PCP)
+  s32_t vlan_prio_vid;
+#ifdef LWIP_HOOK_VLAN_SET
+  vlan_prio_vid = LWIP_HOOK_VLAN_SET(netif, p, src, dst, eth_type);
+#elif LWIP_VLAN_PCP
+  vlan_prio_vid = -1;
+  if (netif->hints && (netif->hints->tci >= 0)) {
+    vlan_prio_vid = (u16_t)netif->hints->tci;
+  }
+#endif
   if (vlan_prio_vid >= 0) {
     struct eth_vlan_hdr *vlanhdr;
 
@@ -289,7 +297,7 @@ ethernet_output(struct netif * netif, struct pbuf * p,
 
     eth_type_be = PP_HTONS(ETHTYPE_VLAN);
   } else
-#endif /* ETHARP_SUPPORT_VLAN && defined(LWIP_HOOK_VLAN_SET) */
+#endif /* ETHARP_SUPPORT_VLAN && (defined(LWIP_HOOK_VLAN_SET) || LWIP_VLAN_PCP) */
   {
     if (pbuf_add_header(p, SIZEOF_ETH_HDR) != 0) {
       goto pbuf_header_failed;

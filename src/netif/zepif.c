@@ -49,7 +49,7 @@
 
 #include "netif/zepif.h"
 
-#if LWIP_IPV6
+#if LWIP_IPV6 && LWIP_UDP
 
 #include "netif/lowpan6.h"
 #include "lwip/udp.h"
@@ -114,6 +114,7 @@ zepif_udp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p,
 
   LWIP_ASSERT("arg != NULL", arg != NULL);
   LWIP_ASSERT("pcb != NULL", pcb != NULL);
+  LWIP_UNUSED_ARG(pcb); /* for LWIP_NOASSERT */
   LWIP_UNUSED_ARG(addr);
   LWIP_UNUSED_ARG(port);
   if (p == NULL) {
@@ -224,6 +225,8 @@ zepif_init(struct netif *netif)
   struct zepif_init *init_state = (struct zepif_init *)netif->state;
   struct zepif_state *state = (struct zepif_state *)mem_malloc(sizeof(struct zepif_state));
 
+  LWIP_ASSERT("zepif needs an input callback", netif->input != NULL);
+
   if (state == NULL) {
     return ERR_MEM;
   }
@@ -294,4 +297,4 @@ err_ret:
   return err;
 }
 
-#endif /* LWIP_IPV6 */
+#endif /* LWIP_IPV6 && LWIP_UDP */

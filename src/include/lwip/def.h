@@ -83,14 +83,14 @@ extern "C" {
 #endif
 
 #if BYTE_ORDER == BIG_ENDIAN
-#define lwip_htons(x) (x)
-#define lwip_ntohs(x) (x)
-#define lwip_htonl(x) (x)
-#define lwip_ntohl(x) (x)
-#define PP_HTONS(x) (x)
-#define PP_NTOHS(x) (x)
-#define PP_HTONL(x) (x)
-#define PP_NTOHL(x) (x)
+#define lwip_htons(x) ((u16_t)(x))
+#define lwip_ntohs(x) ((u16_t)(x))
+#define lwip_htonl(x) ((u32_t)(x))
+#define lwip_ntohl(x) ((u32_t)(x))
+#define PP_HTONS(x)   ((u16_t)(x))
+#define PP_NTOHS(x)   ((u16_t)(x))
+#define PP_HTONL(x)   ((u32_t)(x))
+#define PP_NTOHL(x)   ((u32_t)(x))
 #else /* BYTE_ORDER != BIG_ENDIAN */
 #ifndef lwip_htons
 u16_t lwip_htons(u16_t x);
@@ -143,6 +143,10 @@ int   lwip_stricmp(const char* str1, const char* str2);
 #ifndef lwip_strnstr
 /* This can be #defined to strnstr() depending on your platform */
 char* lwip_strnstr(const char* buffer, const char* token, size_t n);
+#endif
+#ifndef lwip_strnistr
+/* This can be #defined to strnistr() depending on your platform */
+char* lwip_strnistr(const char* buffer, const char* token, size_t n);
 #endif
 
 #ifdef __cplusplus

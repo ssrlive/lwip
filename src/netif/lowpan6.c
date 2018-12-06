@@ -413,7 +413,6 @@ lowpan6_frag(struct netif *netif, struct pbuf *p, const struct lowpan6_link_addr
 
     /* Fragment follows. */
     data_len = (max_data_len - 4) & 0xf8;
-    frag_len = (127 - ieee_header_len - 4 - 2) & 0xf8;
     frag_len = data_len + lowpan6_header_len;
 
     pbuf_copy_partial(p, buffer + ieee_header_len + lowpan6_header_len + 4, frag_len - lowpan6_header_len, 0);
@@ -537,6 +536,7 @@ lowpan6_hwaddr_to_addr(struct netif *netif, struct lowpan6_link_addr *addr)
 {
   addr->addr_len = 8;
   if (netif->hwaddr_len == 8) {
+    LWIP_ERROR("NETIF_MAX_HWADDR_LEN >= 8 required", sizeof(netif->hwaddr) >= 8, return ERR_VAL;);
     SMEMCPY(addr->addr, netif->hwaddr, 8);
   } else if (netif->hwaddr_len == 6) {
     /* Copy from MAC-48 */
@@ -630,11 +630,11 @@ lowpan6_output(struct netif *netif, struct pbuf *q, const ip6_addr_t *ip6addr)
   }
 
   /* Send out the packet using the returned hardware address. */
-  result = lowpan6_hwaddr_to_addr(netif, &dest);
-  if (result != ERR_OK) {
-    MIB2_STATS_NETIF_INC(netif, ifoutdiscards);
-    return result;
-  }
+  dest.addr_len = netif->hwaddr_len;
+  /* XXX: Inferring the length of the source address from the destination address
+   * is not correct for IEEE 802.15.4, but currently we don't get this information
+   * from the neighbor cache */
+  SMEMCPY(dest.addr, hwaddr, netif->hwaddr_len);
   MIB2_STATS_NETIF_INC(netif, ifoutucastpkts);
   return lowpan6_frag(netif, q, &src, &dest);
 }
