@@ -191,6 +191,8 @@
 		3AA917FA20787D5100ABA984 /* sys_arch.h in Headers */ = {isa = PBXBuildFile; fileRef = 3AA917F720787D5100ABA984 /* sys_arch.h */; };
 		3AA917FB20787D5100ABA984 /* cc.h in Headers */ = {isa = PBXBuildFile; fileRef = 3AA917F820787D5100ABA984 /* cc.h */; };
 		3AA917FC20787D5100ABA984 /* cc.h in Headers */ = {isa = PBXBuildFile; fileRef = 3AA917F820787D5100ABA984 /* cc.h */; };
+		3ACFE1EE22FAE60900EE27A4 /* acd.c in Sources */ = {isa = PBXBuildFile; fileRef = 3ACFE1ED22FAE60800EE27A4 /* acd.c */; };
+		3ACFE1EF22FAE60900EE27A4 /* acd.c in Sources */ = {isa = PBXBuildFile; fileRef = 3ACFE1ED22FAE60800EE27A4 /* acd.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -292,6 +294,7 @@
 		3AA917F32078766900ABA984 /* lwipopts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lwipopts.h; path = ../test/fuzz/lwipopts.h; sourceTree = "<group>"; };
 		3AA917F720787D5100ABA984 /* sys_arch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sys_arch.h; path = include/arch/sys_arch.h; sourceTree = "<group>"; };
 		3AA917F820787D5100ABA984 /* cc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cc.h; path = include/arch/cc.h; sourceTree = "<group>"; };
+		3ACFE1ED22FAE60800EE27A4 /* acd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = acd.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -386,6 +389,7 @@
 		3AA9141B2078546600ABA984 /* ipv4 */ = {
 			isa = PBXGroup;
 			children = (
+				3ACFE1ED22FAE60800EE27A4 /* acd.c */,
 				3AA9141C2078546600ABA984 /* autoip.c */,
 				3AA9141D2078546600ABA984 /* dhcp.c */,
 				3AA9141E2078546600ABA984 /* etharp.c */,
@@ -738,6 +742,7 @@
 				3AA915D52078546700ABA984 /* ip6.c in Sources */,
 				3AA915B32078546700ABA984 /* def.c in Sources */,
 				3AA915F72078546700ABA984 /* api_lib.c in Sources */,
+				3ACFE1EE22FAE60900EE27A4 /* acd.c in Sources */,
 				3AA917E3207870E900ABA984 /* upap.c in Sources */,
 				3AA917C7207870E900ABA984 /* multilink.c in Sources */,
 				3AA915AD2078546700ABA984 /* altcp.c in Sources */,
@@ -829,6 +834,7 @@
 				3AA915D62078546700ABA984 /* ip6.c in Sources */,
 				3AA915B42078546700ABA984 /* def.c in Sources */,
 				3AA915F82078546700ABA984 /* api_lib.c in Sources */,
+				3ACFE1EF22FAE60900EE27A4 /* acd.c in Sources */,
 				3AA917E4207870E900ABA984 /* upap.c in Sources */,
 				3AA917C8207870E900ABA984 /* multilink.c in Sources */,
 				3AA915AE2078546700ABA984 /* altcp.c in Sources */,
