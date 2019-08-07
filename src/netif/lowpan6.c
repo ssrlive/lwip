@@ -679,7 +679,7 @@ lowpan6_input(struct pbuf *p, struct netif *netif)
     /* check for duplicate */
     lrh = lowpan6_data.reass_list;
     while (lrh != NULL) {
-      uint8_t discard = 0;
+      u8_t discard = 0;
       lrh_next = lrh->next_packet;
       if ((lrh->sender_addr.addr_len == src.addr_len) &&
           (memcmp(lrh->sender_addr.addr, src.addr, src.addr_len) == 0)) {
@@ -881,7 +881,7 @@ lowpan6_if_init(struct netif *netif)
   MIB2_INIT_NETIF(netif, snmp_ifType_other, 0);
 
   /* maximum transfer unit */
-  netif->mtu = 1280;
+  netif->mtu = IP6_MIN_MTU_LENGTH;
 
   /* broadcast capability */
   netif->flags = NETIF_FLAG_BROADCAST /* | NETIF_FLAG_LOWPAN6 */;

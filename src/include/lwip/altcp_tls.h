@@ -63,7 +63,7 @@ struct altcp_tls_config;
 /** @ingroup altcp_tls
  * Create an ALTCP_TLS server configuration handle prepared for multiple certificates
  */
-struct altcp_tls_config *altcp_tls_create_config_server(uint8_t cert_count);
+struct altcp_tls_config *altcp_tls_create_config_server(u8_t cert_count);
 
 /** @ingroup altcp_tls
  * Add a certificate to an ALTCP_TLS server configuration handle
@@ -95,9 +95,29 @@ struct altcp_tls_config *altcp_tls_create_config_client_2wayauth(const u8_t *ca,
                             const u8_t *cert, size_t cert_len);
 
 /** @ingroup altcp_tls
+ * Configure ALPN TLS extension
+ * Example:<br>
+ * static const char *g_alpn_protocols[] = { "x-amzn-mqtt-ca", NULL };<br>
+ * tls_config = altcp_tls_create_config_client(ca, ca_len);<br>
+ * altcp_tls_conf_alpn_protocols(tls_config, g_alpn_protocols);<br>
+ */
+int altcp_tls_configure_alpn_protocols(struct altcp_tls_config *conf, const char **protos);
+
+/** @ingroup altcp_tls
  * Free an ALTCP_TLS configuration handle
  */
 void altcp_tls_free_config(struct altcp_tls_config *conf);
+
+/** @ingroup altcp_tls
+ * Free an ALTCP_TLS global entropy instance.
+ * All ALTCP_TLS configuration are linked to one altcp_tls_entropy_rng structure
+ * that handle an unique system entropy & ctr_drbg instance.
+ * This function allow application to free this altcp_tls_entropy_rng structure
+ * when all configuration referencing it were destroyed.
+ * This function does nothing if some ALTCP_TLS configuration handle are still
+ * active.
+ */
+void altcp_tls_free_entropy(void);
 
 /** @ingroup altcp_tls
  * Create new ALTCP_TLS layer wrapping an existing pcb as inner connection (e.g. TLS over TCP)
@@ -112,7 +132,7 @@ struct altcp_pcb *altcp_tls_new(struct altcp_tls_config *config, u8_t ip_type);
 /** @ingroup altcp_tls
  * Create new ALTCP_TLS layer pcb and its inner tcp pcb.
  * Same as @ref altcp_tls_new but this allocator function fits to
- * @ref altcp_allocator_t / @ref altcp_new.\n
+ * @ref altcp_allocator_t / @ref altcp_new.<br>
  'arg' must contain a struct altcp_tls_config *.
  */
 struct altcp_pcb *altcp_tls_alloc(void *arg, u8_t ip_type);

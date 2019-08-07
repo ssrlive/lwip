@@ -267,16 +267,16 @@ netif_add_noaddr(struct netif *netif, void *state, netif_init_fn init, netif_inp
  * @param state opaque data passed to the new netif
  * @param init callback function that initializes the interface
  * @param input callback function that is called to pass
- * ingress packets up in the protocol layer stack.\n
+ * ingress packets up in the protocol layer stack.<br>
  * It is recommended to use a function that passes the input directly
  * to the stack (netif_input(), NO_SYS=1 mode) or via sending a
- * message to TCPIP thread (tcpip_input(), NO_SYS=0 mode).\n
+ * message to TCPIP thread (tcpip_input(), NO_SYS=0 mode).<br>
  * These functions use netif flags NETIF_FLAG_ETHARP and NETIF_FLAG_ETHERNET
  * to decide whether to forward to ethernet_input() or ip_input().
  * In other words, the functions only work when the netif
- * driver is implemented correctly!\n
+ * driver is implemented correctly!<br>
  * Most members of struct netif should be be initialized by the
- * netif init function = netif driver (init parameter of this function).\n
+ * netif init function = netif driver (init parameter of this function).<br>
  * IPv6: Don't forget to call netif_create_ip6_linklocal_address() after
  * setting the MAC address in struct netif.hwaddr
  * (IPv6 requires a link-local address).
@@ -1057,6 +1057,10 @@ netif_set_link_down(struct netif *netif)
 #if LWIP_ACD
     acd_network_changed_link_down(netif);
 #endif /* LWIP_ACD */
+
+#if LWIP_IPV6 && LWIP_ND6_ALLOW_RA_UPDATES
+    netif->mtu6 = netif->mtu;
+#endif
 
     NETIF_LINK_CALLBACK(netif);
 #if LWIP_NETIF_EXT_STATUS_CALLBACK
