@@ -66,7 +66,7 @@
 #define FALSE 0
 #endif
 
-/* for all of you who dont define SIO_DEBUG in debug.h */
+/* for all of you who don't define SIO_DEBUG in debug.h */
 #ifndef SIO_DEBUG
 #define SIO_DEBUG 0
 #endif
@@ -131,6 +131,7 @@ static int sio_init( char * device, int devnum, sio_status_t * siostat )
 	}
 
 #if ! (PPP_SUPPORT || LWIP_HAVE_SLIPIF)
+	memset(&saio, 0, sizeof(struct sigaction));
 	/* install the signal handler before making the device asynchronous */
 	switch ( devnum )
 	{
@@ -147,10 +148,6 @@ static int sio_init( char * device, int devnum, sio_status_t * siostat )
 			break;
 	}
 
-	saio.sa_flags = 0;
-#if defined(LWIP_UNIX_LINUX)
-	saio.sa_restorer = NULL;
-#endif /* LWIP_UNIX_LINUX */
 	sigaction( SIGIO,&saio,NULL );
 
 	/* allow the process to receive SIGIO */

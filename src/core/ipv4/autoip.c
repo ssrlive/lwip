@@ -109,6 +109,23 @@ autoip_set_struct(struct netif *netif, struct autoip *autoip)
   netif_set_client_data(netif, LWIP_NETIF_CLIENT_DATA_INDEX_AUTOIP, autoip);
 }
 
+/**
+ * @ingroup autoip
+ * Remove a struct autoip previously set to the netif using autoip_set_struct()
+ *
+ * @param netif the netif for which to set the struct autoip
+ */
+void
+autoip_remove_struct(struct netif *netif)
+{
+  LWIP_ASSERT_CORE_LOCKED();
+  LWIP_ASSERT("netif != NULL", netif != NULL);
+  LWIP_ASSERT("netif has no struct autoip set",
+              netif_autoip_data(netif) != NULL);
+
+  netif_set_client_data(netif, LWIP_NETIF_CLIENT_DATA_INDEX_AUTOIP, NULL);
+}
+
 /** Restart AutoIP client and check the next address (conflict detected)
  *
  * @param netif The netif under AutoIP control
@@ -231,39 +248,39 @@ autoip_start(struct netif *netif)
   LWIP_ASSERT_CORE_LOCKED();
   LWIP_ERROR("netif is not up, old style port?", netif_is_up(netif), return ERR_ARG;);
 
+  if (autoip == NULL) {
+    /* no AutoIP client attached yet? */
+    LWIP_DEBUGF(AUTOIP_DEBUG | LWIP_DBG_TRACE,
+                ("autoip_start(): starting new AUTOIP client\n"));
+    autoip = (struct autoip *)mem_calloc(1, sizeof(struct autoip));
+    if (autoip == NULL) {
+      LWIP_DEBUGF(AUTOIP_DEBUG | LWIP_DBG_TRACE,
+                  ("autoip_start(): could not allocate autoip\n"));
+      return ERR_MEM;
+    }
+    /* store this AutoIP client in the netif */
+    netif_set_client_data(netif, LWIP_NETIF_CLIENT_DATA_INDEX_AUTOIP, autoip);
+    LWIP_DEBUGF(AUTOIP_DEBUG | LWIP_DBG_TRACE, ("autoip_start(): allocated autoip"));
+  }
+
   if (autoip->state == AUTOIP_STATE_OFF) {
     LWIP_DEBUGF(AUTOIP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE,
                 ("autoip_start(netif=%p) %c%c%"U16_F"\n", (void *)netif, netif->name[0],
                  netif->name[1], (u16_t)netif->num));
-    if (autoip == NULL) {
-      /* no AutoIP client attached yet? */
-      LWIP_DEBUGF(AUTOIP_DEBUG | LWIP_DBG_TRACE,
-                  ("autoip_start(): starting new AUTOIP client\n"));
-      autoip = (struct autoip *)mem_calloc(1, sizeof(struct autoip));
-      if (autoip == NULL) {
-        LWIP_DEBUGF(AUTOIP_DEBUG | LWIP_DBG_TRACE,
-                    ("autoip_start(): could not allocate autoip\n"));
-        return ERR_MEM;
-      }
-      /* store this AutoIP client in the netif */
-      netif_set_client_data(netif, LWIP_NETIF_CLIENT_DATA_INDEX_AUTOIP, autoip);
-      LWIP_DEBUGF(AUTOIP_DEBUG | LWIP_DBG_TRACE, ("autoip_start(): allocated autoip"));
-    }
 
     /* add acd struct to list*/
     acd_add(netif, &autoip->acd, autoip_conflict_callback);
 
     /* In accordance to RFC3927 section 2.1:
      * Keep using the same link local address as much as possible.
-     * Only when their is none or when their was a conflict, select a new one.
+     * Only when there is none or when there was a conflict, select a new one.
      */
     if (!ip4_addr_islinklocal(&autoip->llipaddr)) {
       autoip_create_addr(netif, &(autoip->llipaddr));
     }
     autoip->state = AUTOIP_STATE_CHECKING;
     acd_start(netif, &autoip->acd, autoip->llipaddr);
-  }
-  else {
+  } else {
     LWIP_DEBUGF(AUTOIP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE,
                 ("autoip_start(): already started on netif=%p %c%c%"U16_F"\n",
                 (void *)netif, netif->name[0],

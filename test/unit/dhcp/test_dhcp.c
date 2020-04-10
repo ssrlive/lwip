@@ -4,6 +4,7 @@
 #include "lwip/dhcp.h"
 #include "lwip/prot/dhcp.h"
 #include "lwip/etharp.h"
+#include "lwip/inet.h"
 #include "netif/ethernet.h"
 
 #if LWIP_ACD
@@ -296,7 +297,7 @@ static err_t lwip_tx_func(struct netif *netif, struct pbuf *p)
 
         check_pkt(p, 278, magic_cookie, sizeof(magic_cookie));
 
-        /* Check dchp message type, can be at different positions */
+        /* Check dhcp message type, can be at different positions */
         if (txpacket == 1) {
           u8_t dhcp_discover_opt[] = { 0x35, 0x01, 0x01 };
           check_pkt_fuzzy(p, 282, dhcp_discover_opt, sizeof(dhcp_discover_opt));
@@ -389,7 +390,7 @@ static err_t lwip_tx_func(struct netif *netif, struct pbuf *p)
 
         check_pkt(p, 278, magic_cookie, sizeof(magic_cookie));
 
-        /* Check dchp message type, can be at different positions */
+        /* Check dhcp message type, can be at different positions */
         if (txpacket == 1) {
           u8_t dhcp_discover_opt[] = { 0x35, 0x01, 0x01 };
           check_pkt_fuzzy(p, 282, dhcp_discover_opt, sizeof(dhcp_discover_opt));
@@ -448,7 +449,7 @@ static err_t lwip_tx_func(struct netif *netif, struct pbuf *p)
 
         check_pkt(p, 278, magic_cookie, sizeof(magic_cookie));
 
-        /* Check dchp message type, can be at different positions */
+        /* Check dhcp message type, can be at different positions */
         check_pkt_fuzzy(p, 282, dhcp_request_opt, sizeof(dhcp_request_opt));
         break;
       }

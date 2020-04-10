@@ -257,8 +257,8 @@ acd_tmr(void)
             if (acd->sent_num == 0) {
               acd->state = ACD_STATE_ANNOUNCING;
 
-              /* let acd user know that the address is good and can be used */
-              acd->acd_conflict_callback(netif, ACD_IP_OK);
+              /* reset conflict count to ensure fast re-probing after announcing */
+              acd->num_conflicts = 0;
 
               LWIP_DEBUGF(ACD_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE,
                     ("acd_tmr(): changing state to ANNOUNCING: %"U16_F".%"U16_F".%"U16_F".%"U16_F"\n",
@@ -280,6 +280,9 @@ acd_tmr(void)
                     ("acd_tmr(): changing state to ONGOING: %"U16_F".%"U16_F".%"U16_F".%"U16_F"\n",
                      ip4_addr1_16(&acd->ipaddr), ip4_addr2_16(&acd->ipaddr),
                      ip4_addr3_16(&acd->ipaddr), ip4_addr4_16(&acd->ipaddr)));
+
+              /* finally, let acd user know that the address is good and can be used */
+              acd->acd_conflict_callback(netif, ACD_IP_OK);
             }
           }
           break;
@@ -319,7 +322,7 @@ acd_restart(struct netif *netif, struct acd *acd)
 
   /* if we tried more then MAX_CONFLICTS we must limit our rate for
    * acquiring and probing addresses. compliant to RFC 5227 Section 2.1.1 */
-  if (acd->num_conflicts > MAX_CONFLICTS) {
+  if (acd->num_conflicts >= MAX_CONFLICTS) {
     acd->state = ACD_STATE_RATE_LIMIT;
     acd->ttw = (u16_t)(RATE_LIMIT_INTERVAL * ACD_TICKS_PER_SECOND);
     LWIP_DEBUGF(ACD_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE | LWIP_DBG_LEVEL_WARNING,
@@ -427,7 +430,7 @@ acd_handle_arp_conflict(struct netif *netif, struct acd *acd)
      the netif but the LL address is still open in the background. */
 
   if (acd->state == ACD_STATE_PASSIVE_ONGOING) {
-    /* Imediatly back off on a conflict. */
+    /* Immediately back off on a conflict. */
     LWIP_DEBUGF(ACD_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE,
       ("acd_handle_arp_conflict(): conflict when we are in passive mode -> back off\n"));
     acd_stop(acd);

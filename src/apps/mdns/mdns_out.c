@@ -52,9 +52,6 @@
 
 #if LWIP_MDNS_RESPONDER
 
-/* Payload size allocated for each outgoing UDP packet */
-#define OUTPACKET_SIZE 500
-
 /* Function prototypes */
 static void mdns_clear_outmsg(struct mdns_outmsg *outmsg);
 
@@ -93,7 +90,7 @@ mdns_add_question(struct mdns_outpacket *outpkt, struct mdns_domain *domain,
 
   if (!outpkt->pbuf) {
     /* If no pbuf is active, allocate one */
-    outpkt->pbuf = pbuf_alloc(PBUF_TRANSPORT, OUTPACKET_SIZE, PBUF_RAM);
+    outpkt->pbuf = pbuf_alloc(PBUF_TRANSPORT, MDNS_OUTPUT_PACKET_SIZE, PBUF_RAM);
     if (!outpkt->pbuf) {
       return ERR_MEM;
     }
@@ -166,7 +163,7 @@ mdns_add_answer(struct mdns_outpacket *reply, struct mdns_domain *domain,
 
   if (!reply->pbuf) {
     /* If no pbuf is active, allocate one */
-    reply->pbuf = pbuf_alloc(PBUF_TRANSPORT, OUTPACKET_SIZE, PBUF_RAM);
+    reply->pbuf = pbuf_alloc(PBUF_TRANSPORT, MDNS_OUTPUT_PACKET_SIZE, PBUF_RAM);
     if (!reply->pbuf) {
       return ERR_MEM;
     }
@@ -1083,7 +1080,7 @@ mdns_start_multicast_timeouts_ipv6(struct netif *netif)
 /**
  *  This function clears the output message without changing the destination
  *  address or port. This is useful for clearing the delayed msg structs without
- *  loosing the set IP.
+ *  losing the set IP.
  *
  *  @param outmsg pointer to output message to clear.
  */

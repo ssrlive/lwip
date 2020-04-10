@@ -1,4 +1,7 @@
 /*
+ * Copyright (c) 2001-2003 Swedish Institute of Computer Science.
+ * All rights reserved. 
+ * 
  * Redistribution and use in source and binary forms, with or without modification, 
  * are permitted provided that the following conditions are met:
  *
@@ -23,41 +26,14 @@
  *
  * This file is part of the lwIP TCP/IP stack.
  * 
- * Author: Dirk Ziegelmeier <dziegel@gmx.de>
+ * Author: Erik Ekman <erik@kryo.se>
+ *         Simon Goldschmidt <goldsimon@gmx.de>
  *
  */
 
-#include "lwip/apps/mdns.h"
-#include "mdns_example.h"
+#include "fuzz_common.h"
 
-#if LWIP_MDNS_RESPONDER
-static void
-srv_txt(struct mdns_service *service, void *txt_userdata)
+int main(int argc, char** argv)
 {
-  err_t res;
-  LWIP_UNUSED_ARG(txt_userdata);
-  
-  res = mdns_resp_add_service_txtitem(service, "path=/", 6);
-  LWIP_ERROR("mdns add service txt failed\n", (res == ERR_OK), return);
-}
-#endif
-
-#if LWIP_MDNS_RESPONDER
-static void
-mdns_example_report(struct netif* netif, u8_t result, s8_t service)
-{
-  LWIP_PLATFORM_DIAG(("mdns status[netif %d][service %d]: %d\n", netif->num, service, result));
-}
-#endif
-
-void
-mdns_example_init(void)
-{
-#if LWIP_MDNS_RESPONDER
-  mdns_resp_register_name_result_cb(mdns_example_report);
-  mdns_resp_init();
-  mdns_resp_add_netif(netif_default, "lwip");
-  mdns_resp_add_service(netif_default, "myweb", "_http", DNSSD_PROTO_TCP, 80, srv_txt, NULL);
-  mdns_resp_announce(netif_default);
-#endif
+  return lwip_fuzztest(argc, argv, LWIP_FUZZ_MULTIPACKET, LWIP_FUZZ_DEFAULT);
 }

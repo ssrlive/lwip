@@ -670,9 +670,14 @@ u32_t
 sys_now(void)
 {
   struct timespec ts;
+  u32_t now;
 
   get_monotonic_time(&ts);
-  return (u32_t)(ts.tv_sec * 1000L + ts.tv_nsec / 1000000L);
+  now = (u32_t)(ts.tv_sec * 1000L + ts.tv_nsec / 1000000L);
+#ifdef LWIP_FUZZ_SYS_NOW
+  now += sys_now_offset;
+#endif
+  return now;
 }
 
 u32_t
@@ -752,6 +757,7 @@ sys_arch_unprotect(sys_prot_t pval)
 }
 #endif /* SYS_LIGHTWEIGHT_PROT */
 
+#if !NO_SYS
 /* get keyboard state to terminate the debug app by using select */
 int
 lwip_unix_keypressed(void)
@@ -762,3 +768,4 @@ lwip_unix_keypressed(void)
   FD_SET(0, &fds);
   return select(1, &fds, NULL, NULL, &tv);
 }
+#endif /* !NO_SYS */

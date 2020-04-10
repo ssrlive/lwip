@@ -383,6 +383,7 @@ lowpan6_frag(struct netif *netif, struct pbuf *p, const struct lowpan6_link_addr
 #else /* LWIP_6LOWPAN_IPHC */
   /* Send uncompressed IPv6 header with appropriate dispatch byte. */
   lowpan6_header_len = 1;
+  hidden_header_len = 0;
   buffer[ieee_header_len] = 0x41; /* IPv6 dispatch */
 #endif /* LWIP_6LOWPAN_IPHC */
 
@@ -604,8 +605,8 @@ lowpan6_output(struct netif *netif, struct pbuf *q, const ip6_addr_t *ip6addr)
 
 #if LWIP_6LOWPAN_INFER_SHORT_ADDRESS
   if (src.addr_len == 2) {
-    /* If source address was compressable to short_mac_addr, and dest has same subnet and
-     * is also compressable to 2-bytes, assume we can infer dest as a short address too. */
+    /* If source address was compressible to short_mac_addr, and dest has same subnet and
+     * is also compressible to 2-bytes, assume we can infer dest as a short address too. */
     dest.addr_len = 2;
     dest.addr[0] = ((u8_t *)q->payload)[38];
     dest.addr[1] = ((u8_t *)q->payload)[39];

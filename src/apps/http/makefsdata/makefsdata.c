@@ -21,7 +21,7 @@
 
 /** Makefsdata can generate *all* files deflate-compressed (where file size shrinks).
  * Since nearly all browsers support this, this is a good way to reduce ROM size.
- * To compress the files, "miniz.c" must be downloaded seperately.
+ * To compress the files, "miniz.c" must be downloaded separately.
  */
 #ifndef MAKEFS_SUPPORT_DEFLATE
 #define MAKEFS_SUPPORT_DEFLATE 0
@@ -52,9 +52,8 @@ static uint8 s_checkbuf[OUT_BUF_SIZE];
 /* tdefl_compressor contains all the state needed by the low-level compressor so it's a pretty big struct (~300k).
    This example makes it a global vs. putting it on the stack, of course in real-world usage you'll probably malloc() or new it. */
 tdefl_compressor g_deflator;
-tinfl_decompressor g_inflator;
 
-int deflate_level = 10; /* default compression level, can be changed via command line */
+static int deflate_level; /* default compression level, can be changed via command line */
 #define USAGE_ARG_DEFLATE " [-defl<:compr_level>]"
 #else /* MAKEFS_SUPPORT_DEFLATE */
 #define USAGE_ARG_DEFLATE ""
@@ -235,19 +234,20 @@ int main(int argc, char *argv[])
         printf("Writing to file \"%s\"\n", targetfile);
       } else if (!strcmp(argv[i], "-m")) {
         includeLastModified = 1;
-      } else if (!strcmp(argv[i], "-defl")) {
+      } else if (strstr(argv[i], "-defl") == argv[i]) {
 #if MAKEFS_SUPPORT_DEFLATE
-        char *colon = strstr(argv[i], ":");
-        if (colon) {
-          if (colon[1] != 0) {
-            int defl_level = atoi(&colon[1]);
-            if ((defl_level >= 0) && (defl_level <= 10)) {
-              deflate_level = defl_level;
-            } else {
-              printf("ERROR: deflate level must be [0..10]" NEWLINE);
-              exit(0);
-            }
+        const char *colon = &argv[i][5];
+        if (*colon == ':') {
+          int defl_level = atoi(&colon[1]);
+          if ((colon[1] != 0) && (defl_level >= 0) && (defl_level <= 10)) {
+            deflate_level = defl_level;
+          } else {
+            printf("ERROR: deflate level must be [0..10]" NEWLINE);
+            exit(0);
           }
+        } else {
+          /* default to highest compression */
+          deflate_level = 10;
         }
         deflateNonSsiFiles = 1;
         printf("Deflating all non-SSI files with level %d (but only if size is reduced)" NEWLINE, deflate_level);
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
         printf("Excluding files with extensions %s" NEWLINE, exclude_list);
       } else if (strstr(argv[i], "-xc:") == argv[i]) {
         ncompress_list = &argv[i][4];
-        printf("Skipping compresion for files with extensions %s" NEWLINE, ncompress_list);
+        printf("Skipping compression for files with extensions %s" NEWLINE, ncompress_list);
       } else if ((strstr(argv[i], "-?")) || (strstr(argv[i], "-h"))) {
         print_usage();
         exit(0);
@@ -639,7 +639,7 @@ static u8_t *get_file_data(const char *filename, int *file_size, int can_be_comp
           printf(" - uncompressed: (would be %d bytes larger using deflate)" NEWLINE, (int)(out_bytes - fsize));
         }
       } else {
-        printf(" - uncompressed: (file is larger than deflate bufer)" NEWLINE);
+        printf(" - uncompressed: (file is larger than deflate buffer)" NEWLINE);
       }
     } else {
       printf(" - cannot be compressed" NEWLINE);
@@ -1069,17 +1069,17 @@ int file_write_http_header(FILE *data_file, const char *filename, int file_size,
   }
 
   fprintf(data_file, NEWLINE "/* HTTP header */");
-  if (strstr(filename, "404") == filename) {
+  if (strstr(filename, "404.") == filename) {
     response_type = HTTP_HDR_NOT_FOUND;
     if (useHttp11) {
       response_type = HTTP_HDR_NOT_FOUND_11;
     }
-  } else if (strstr(filename, "400") == filename) {
+  } else if (strstr(filename, "400.") == filename) {
     response_type = HTTP_HDR_BAD_REQUEST;
     if (useHttp11) {
       response_type = HTTP_HDR_BAD_REQUEST_11;
     }
-  } else if (strstr(filename, "501") == filename) {
+  } else if (strstr(filename, "501.") == filename) {
     response_type = HTTP_HDR_NOT_IMPL;
     if (useHttp11) {
       response_type = HTTP_HDR_NOT_IMPL_11;
