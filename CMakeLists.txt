@@ -9,6 +9,10 @@ set(LWIP_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 set (LWIP_DEFINITIONS LWIP_DEBUG=1)
 
+if(MSVC)
+  add_definitions("/wd4061 /wd5045 /wd4710 /wd4820 /wd4267 /wd4244 /wd4242")
+endif()
+
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
   add_subdirectory(${LWIP_DIR}/contrib/ports/win32/example_app)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
