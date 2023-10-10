@@ -12,8 +12,11 @@ include(${LWIP_DIR}/contrib/Filelists.cmake)
 include(${LWIP_DIR}/contrib/ports/unix/Filelists.cmake)
 
 if(NOT EXISTS ${LWIP_DIR}/contrib/examples/example_app/lwipcfg.h)
-  message(WARNING "${LWIP_DIR}/contrib/examples/example_app is missing lwipcfg.h
-Copy ${LWIP_DIR}/contrib/examples/example_app/lwipcfg.h.example to ${LWIP_DIR}/contrib/examples/example_app/lwipcfg.h and edit appropriately")
+  message(WARNING "${LWIP_DIR}/contrib/examples/example_app is missing lwipcfg.h, copy from lwipcfg.h.example ...")
+  configure_file(
+          "${LWIP_DIR}/contrib/examples/example_app/lwipcfg.h.example"
+          "${LWIP_DIR}/contrib/examples/example_app/lwipcfg.h"
+          COPYONLY)
 endif()
 add_executable(example_app ${LWIP_DIR}/contrib/examples/example_app/test.c default_netif.c)
 target_include_directories(example_app PRIVATE ${LWIP_INCLUDE_DIRS})
