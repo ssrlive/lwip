@@ -590,7 +590,7 @@ static u8_t *get_file_data(const char *filename, int *file_size, int can_be_comp
   LWIP_ASSERT("buf != NULL", buf != NULL);
   r = fread(buf, 1, fsize, inFile);
   LWIP_ASSERT("r == fsize", r == fsize);
-  *file_size = fsize;
+  *file_size = (int) fsize;
   *is_compressed = 0;
 #if MAKEFS_SUPPORT_DEFLATE
   overallDataBytes += fsize;
@@ -726,7 +726,7 @@ static int write_checksums(FILE *struct_file, const char *varname,
     i++;
   }
   src_offset = 0;
-  for (offset = hdr_len; ; offset += len) {
+  for (offset = hdr_len; ; offset += (int) len) {
     unsigned short chksum;
     const void *data = (const void *)&file_data[src_offset];
     len = LWIP_MIN(chunk_size, (int)file_size - src_offset);
@@ -991,7 +991,7 @@ int process_file(FILE *data_file, FILE *struct_file, const char *filename)
   fprintf(data_file, "static const unsigned char FSDATA_ALIGN_PRE data_%s[] FSDATA_ALIGN_POST = {" NEWLINE, varname);
   /* encode source file name (used by file system, not returned to browser) */
   fprintf(data_file, "/* %s (%"SZT_F" chars) */" NEWLINE, qualifiedName, strlen(qualifiedName) + 1);
-  file_put_ascii(data_file, qualifiedName, strlen(qualifiedName) + 1, &i);
+  file_put_ascii(data_file, qualifiedName, (int) strlen(qualifiedName) + 1, &i);
 #if ALIGN_PAYLOAD
   /* pad to even number of bytes to assure payload is on aligned boundary */
   while (i % PAYLOAD_ALIGNMENT != 0) {
@@ -1117,7 +1117,7 @@ int file_write_http_header(FILE *data_file, const char *filename, int file_size,
   cur_string = g_psHTTPHeaderStrings[response_type];
   cur_len = strlen(cur_string);
   fprintf(data_file, NEWLINE "/* \"%s\" (%"SZT_F" bytes) */" NEWLINE, cur_string, cur_len);
-  written += file_put_ascii(data_file, cur_string, cur_len, &i);
+  written += file_put_ascii(data_file, cur_string, (int)cur_len, &i);
   i = 0;
   if (precalcChksum) {
     memcpy(&hdr_buf[hdr_len], cur_string, cur_len);
@@ -1127,7 +1127,7 @@ int file_write_http_header(FILE *data_file, const char *filename, int file_size,
   cur_string = serverID;
   cur_len = strlen(cur_string);
   fprintf(data_file, NEWLINE "/* \"%s\" (%"SZT_F" bytes) */" NEWLINE, cur_string, cur_len);
-  written += file_put_ascii(data_file, cur_string, cur_len, &i);
+  written += file_put_ascii(data_file, cur_string, (int)cur_len, &i);
   i = 0;
   if (precalcChksum) {
     memcpy(&hdr_buf[hdr_len], cur_string, cur_len);
@@ -1168,7 +1168,7 @@ int file_write_http_header(FILE *data_file, const char *filename, int file_size,
     cur_string = g_psHTTPHeaderStrings[HTTP_HDR_CONTENT_LENGTH];
     cur_len = strlen(cur_string);
     fprintf(data_file, NEWLINE "/* \"%s%d\r\n\" (%"SZT_F"+ bytes) */" NEWLINE, cur_string, content_len, cur_len + 2);
-    written += file_put_ascii(data_file, cur_string, cur_len, &i);
+    written += file_put_ascii(data_file, cur_string, (int)cur_len, &i);
     if (precalcChksum) {
       memcpy(&hdr_buf[hdr_len], cur_string, cur_len);
       hdr_len += cur_len;
@@ -1177,7 +1177,7 @@ int file_write_http_header(FILE *data_file, const char *filename, int file_size,
     lwip_itoa(intbuf, sizeof(intbuf), content_len);
     strcat(intbuf, "\r\n");
     cur_len = strlen(intbuf);
-    written += file_put_ascii(data_file, intbuf, cur_len, &i);
+    written += file_put_ascii(data_file, intbuf, (int)cur_len, &i);
     i = 0;
     if (precalcChksum) {
       memcpy(&hdr_buf[hdr_len], intbuf, cur_len);
@@ -1204,7 +1204,7 @@ int file_write_http_header(FILE *data_file, const char *filename, int file_size,
     strftime(&modbuf[15], sizeof(modbuf) - 15, "%a, %d %b %Y %H:%M:%S GMT", t);
     cur_len = strlen(cur_string);
     fprintf(data_file, NEWLINE "/* \"%s\"\r\n\" (%"SZT_F"+ bytes) */" NEWLINE, cur_string, cur_len + 2);
-    written += file_put_ascii(data_file, cur_string, cur_len, &i);
+    written += file_put_ascii(data_file, cur_string, (int)cur_len, &i);
     if (precalcChksum) {
       memcpy(&hdr_buf[hdr_len], cur_string, cur_len);
       hdr_len += cur_len;
@@ -1213,7 +1213,7 @@ int file_write_http_header(FILE *data_file, const char *filename, int file_size,
     modbuf[0] = 0;
     strcat(modbuf, "\r\n");
     cur_len = strlen(modbuf);
-    written += file_put_ascii(data_file, modbuf, cur_len, &i);
+    written += file_put_ascii(data_file, modbuf, (int)cur_len, &i);
     i = 0;
     if (precalcChksum) {
       memcpy(&hdr_buf[hdr_len], modbuf, cur_len);
@@ -1232,7 +1232,7 @@ int file_write_http_header(FILE *data_file, const char *filename, int file_size,
     }
     cur_len = strlen(cur_string);
     fprintf(data_file, NEWLINE "/* \"%s\" (%"SZT_F" bytes) */" NEWLINE, cur_string, cur_len);
-    written += file_put_ascii(data_file, cur_string, cur_len, &i);
+    written += file_put_ascii(data_file, cur_string, (int)cur_len, &i);
     i = 0;
     if (precalcChksum) {
       memcpy(&hdr_buf[hdr_len], cur_string, cur_len);
@@ -1247,7 +1247,7 @@ int file_write_http_header(FILE *data_file, const char *filename, int file_size,
     cur_string = "Content-Encoding: deflate\r\n";
     cur_len = strlen(cur_string);
     fprintf(data_file, NEWLINE "/* \"%s\" (%d bytes) */" NEWLINE, cur_string, cur_len);
-    written += file_put_ascii(data_file, cur_string, cur_len, &i);
+    written += file_put_ascii(data_file, cur_string, (int)cur_len, &i);
     i = 0;
   }
 #else
@@ -1258,7 +1258,7 @@ int file_write_http_header(FILE *data_file, const char *filename, int file_size,
   cur_string = file_type;
   cur_len = strlen(cur_string);
   fprintf(data_file, NEWLINE "/* \"%s\" (%"SZT_F" bytes) */" NEWLINE, cur_string, cur_len);
-  written += file_put_ascii(data_file, cur_string, cur_len, &i);
+  written += file_put_ascii(data_file, cur_string, (int)cur_len, &i);
   i = 0;
 
   /* ATTENTION: headers are done now (double-CRLF has been written!) */
