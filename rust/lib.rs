@@ -25,4 +25,9 @@ pub use udp::UdpSocket;
 pub enum Error {
     #[error("LwIP error ({0})")]
     LwIP(i8),
+
+    #[error("AtomicMutexErr {0:?}")]
+    AtomicMutexErr(#[from] mutex::AtomicMutexErr),
 }
+
+pub type Result<T, E = Error> = std::result::Result<T, E>;

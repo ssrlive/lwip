@@ -72,18 +72,12 @@ fn compile_lwip() {
         .file("old-src/core/ipv6/ip6_frag.c")
         // .file("old-src/core/ipv6/mld6.c")
         .file("old-src/core/ipv6/nd6.c")
+        .file("old-src/custom/sys_arch.c")
         .file("src/api/err.c")
         .include("old-src/custom")
         .include("old-src/include")
         .warnings(false)
         .flag_if_supported("-Wno-everything");
-
-    // .file("old-src/custom/sys_arch.c")
-    #[cfg(unix)]
-    build.file("contrib/ports/unix/port/sys_arch.c");
-    #[cfg(windows)]
-    build.file("contrib/ports/win32/sys_arch.c");
-
     if let Some(sdk_include_path) = sdk_include_path() {
         build.include(sdk_include_path);
     }

@@ -8,6 +8,14 @@ pub struct AtomicMutex {
 #[derive(Debug, Clone, Copy)]
 pub struct AtomicMutexErr;
 
+impl std::fmt::Display for AtomicMutexErr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Mutex is already locked")
+    }
+}
+
+impl std::error::Error for AtomicMutexErr {}
+
 pub struct AtomicMutexGuard<'a> {
     mutex: &'a AtomicMutex,
 }
