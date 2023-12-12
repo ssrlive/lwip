@@ -108,19 +108,23 @@ fn generate_lwip_bindings() {
     if let Some(sdk_include_path) = sdk_include_path {
         builder = builder.clang_arg(format!("-I{}", sdk_include_path));
     }
+
+    if os == "windows" {
+        builder = builder.size_t_is_usize(false);
+    }
+
     let bindings = builder.generate().expect("Unable to generate bindings");
 
-    let mut out_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-    out_path = out_path.join("rust");
+    let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
     bindings
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings!");
 }
 
 fn main() {
-    // let os = env::var("CARGO_CFG_TARGET_OS").unwrap();
+    let os = env::var("CARGO_CFG_TARGET_OS").unwrap();
+    println!("cargo:warning=host os {}", os);
     compile_lwip();
-    if env::var("BINDINGS_GEN").is_ok() {
-        generate_lwip_bindings();
-    }
+    generate_lwip_bindings();
+    println!("cargo:rerun-if-changed=build.rs");
 }

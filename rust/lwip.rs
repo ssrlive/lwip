@@ -10,4 +10,4 @@
 // the bindings. We should have the bindings automatically generated
 // for each target at compile time, but I couldn't find a way to make
 // bindgen work with cross.
-include!(concat!(env!("CARGO_MANIFEST_DIR"), "/rust/bindings.rs"));
+include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
