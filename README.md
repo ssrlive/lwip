@@ -9,11 +9,13 @@ A netstack for the special purpose of turning packets from/to a TUN interface in
 It uses `lwIP` as the backend netstack.
 
 ```rust, ignore
-use futures::StreamExt;
+use futures::{SinkExt, StreamExt};
 
 let (stack, mut tcp_listener, udp_socket) = ::lwip::NetStack::new().unwrap();
 let (mut stack_sink, mut stack_stream) = stack.split();
-let (mut tun_sink, mut tun_stream) = tun.split(); // tun is assumed implementing `Stream` and `Sink`
+
+// tun device is assumed implementing `Stream` and `Sink`
+let (mut tun_sink, mut tun_stream) = tun.split();
 
 // Reads packet from stack and sends to TUN.
 tokio::spawn(async move {
@@ -36,11 +38,7 @@ tokio::spawn(async move {
 // Extracts TCP connections from stack and sends them to the dispatcher.
 tokio::spawn(async move {
     while let Some((stream, local_addr, remote_addr)) = tcp_listener.next().await {
-        tokio::spawn(handle_inbound_stream(
-            stream,
-            local_addr,
-            remote_addr,
-        ));
+        tokio::spawn(handle_inbound_stream(stream, local_addr, remote_addr));
     }
 });
 

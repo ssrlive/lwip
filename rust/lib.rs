@@ -19,7 +19,7 @@ pub(crate) use mutex::AtomicMutexGuard as LWIPMutexGuard;
 pub use stack::NetStack;
 pub use tcp_listener::TcpListener;
 pub use tcp_stream::TcpStream;
-pub use udp::UdpSocket;
+pub use {udp::RecvHalf as UdpRecvHalf, udp::SendHalf as UdpSendHalf, udp::UdpPkt, udp::UdpSocket};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

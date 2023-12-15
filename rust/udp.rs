@@ -70,7 +70,7 @@ fn send_udp(
     }
 }
 
-type UdpPkt = (Vec<u8>, SocketAddr, SocketAddr);
+pub type UdpPkt = (Vec<u8>, SocketAddr, SocketAddr);
 
 pub struct UdpSocket {
     pcb: usize,
