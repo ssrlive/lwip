@@ -1,3 +1,9 @@
+lwipcfg.h
+Cargo.lock
+target/
+tmp/
+.vscode/
+.VSCodeCounter/
 *.o
 *.so
 *.a
