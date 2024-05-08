@@ -30,7 +30,7 @@
 #ifndef LWIP_CUSTOM_LWIPOPTS_H
 #define LWIP_CUSTOM_LWIPOPTS_H
 
- // enable tun2socks logic
+// enable tun2socks logic
 #define TUN2SOCKS 1
 
 #define NO_SYS 1
@@ -152,6 +152,8 @@
 #define UDP_DEBUG LWIP_DBG_OFF
 #define TCPIP_DEBUG LWIP_DBG_OFF
 #define IP6_DEBUG LWIP_DBG_OFF
+#define icmp6_hdr LWIP_icmp6_hdr
+#define ip6_hdr LWIP_ip6_hdr
 
 #define LWIP_STATS 0
 #define LWIP_STATS_DISPLAY 0

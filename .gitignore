@@ -1,4 +1,6 @@
 lwipcfg.h
+project.xcworkspace
+xcuserdata
 Cargo.lock
 target/
 tmp/
