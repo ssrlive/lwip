@@ -8,6 +8,8 @@
 *.log
 .depend*
 
+.vscode/
+.VSCodeCounter/
 /.vscode/ipch
 
 /doc/doxygen/output/html
