@@ -398,7 +398,18 @@ snmp_send_trap_or_notification_or_inform_generic(struct snmp_msg_trap *trap_msg,
       snmp_v2_special_varbinds[1].value = snmp_trap_oid.id;
       if (varbinds != NULL) {
         original_prev = varbinds->prev;
+        /* GCC 12+ reports storing the address of the local
+           `snmp_v2_special_varbinds` into caller-owned memory. It does not
+           escape: `original_prev` is put back below, on the single return
+           path, before this frame goes away. */
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ >= 12)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdangling-pointer"
+#endif
         varbinds->prev = &snmp_v2_special_varbinds[1];
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ >= 12)
+#pragma GCC diagnostic pop
+#endif
       }
       varbinds = snmp_v2_special_varbinds;  /* After inserting two varbinds at the beginning of the list, make sure that pointer is pointing to the first element  */
     }
