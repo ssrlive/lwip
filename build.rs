@@ -94,6 +94,13 @@ fn compile_lwip() {
     }
     build.debug(true);
     build.compile("liblwip.a");
+
+    // `sys_win_rand` (old-src/custom/sys_arch.c) calls BCryptGenRandom, which
+    // lives in bcrypt.lib. Without this the MSVC link fails with
+    // `LNK2019: unresolved external symbol BCryptGenRandom`.
+    if env::var("CARGO_CFG_TARGET_OS").unwrap() == "windows" {
+        println!("cargo:rustc-link-lib=bcrypt");
+    }
 }
 
 fn generate_lwip_bindings() {
