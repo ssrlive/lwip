@@ -18,20 +18,31 @@ fn sdk_include_path_for(sdk: &str) -> String {
     inc_path.to_str().expect("invalid include path").to_string()
 }
 
-fn sdk_include_path() -> Option<String> {
+/// Whether the target runs in a simulator rather than on device.
+///
+/// Rust spells these triples `*-sim` (`aarch64-apple-ios-sim`,
+/// `aarch64-apple-tvos-sim`). The older `x86_64-apple-{ios,tvos}` triples are
+/// simulator-only too -- no Intel iPhone or Apple TV hardware exists.
+fn is_apple_simulator() -> bool {
+    env::var("TARGET").unwrap_or_default().ends_with("-sim")
+        || env::var("CARGO_CFG_TARGET_ARCH").unwrap() == "x86_64"
+}
+
+/// SDK name to hand to `xcrun --sdk`, or `None` off Apple platforms.
+fn apple_sdk_name() -> Option<&'static str> {
     let os = env::var("CARGO_CFG_TARGET_OS").unwrap();
-    let arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
-    match os.as_str() {
-        "ios" => {
-            if arch == "x86_64" {
-                Some(sdk_include_path_for("iphonesimulator"))
-            } else {
-                Some(sdk_include_path_for("iphoneos"))
-            }
-        }
-        "macos" => Some(sdk_include_path_for("macosx")),
+    match (os.as_str(), is_apple_simulator()) {
+        ("ios", false) => Some("iphoneos"),
+        ("ios", true) => Some("iphonesimulator"),
+        ("tvos", false) => Some("appletvos"),
+        ("tvos", true) => Some("appletvsimulator"),
+        ("macos", _) => Some("macosx"),
         _ => None,
     }
+}
+
+fn sdk_include_path() -> Option<String> {
+    apple_sdk_name().map(sdk_include_path_for)
 }
 
 fn compile_lwip() {
@@ -101,9 +112,16 @@ fn generate_lwip_bindings() {
         .clang_arg("-Wno-everything")
         .layout_tests(false)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()));
-    if arch == "aarch64" && os == "ios" {
+    if arch == "aarch64" && matches!(os.as_str(), "ios" | "tvos") {
         // https://github.com/rust-lang/rust-bindgen/issues/1211
-        builder = builder.clang_arg("--target=arm64-apple-ios");
+        // Clang spells the simulator environment `-simulator`; passing Rust's
+        // own `-sim` suffix through is rejected.
+        let env_suffix = if is_apple_simulator() {
+            "-simulator"
+        } else {
+            ""
+        };
+        builder = builder.clang_arg(format!("--target=arm64-apple-{os}{env_suffix}"));
     }
     if let Some(sdk_include_path) = sdk_include_path {
         builder = builder.clang_arg(format!("-I{}", sdk_include_path));
