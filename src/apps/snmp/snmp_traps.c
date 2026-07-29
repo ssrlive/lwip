@@ -731,7 +731,6 @@ snmp_trap_header_enc_pdu(struct snmp_msg_trap *trap, struct snmp_pbuf_stream *pb
  * Encodes trap header part that is SNMP v1 header specific.
  * @param trap Trap message
  * @param pbuf_stream stream used for storing data inside pbuf
- * @retval void
  */
 static err_t
 snmp_trap_header_enc_v1_specific(struct snmp_msg_trap *trap, struct snmp_pbuf_stream *pbuf_stream)
@@ -785,7 +784,6 @@ snmp_trap_header_enc_v1_specific(struct snmp_msg_trap *trap, struct snmp_pbuf_st
  *
  * @param trap Trap message
  * @param pbuf_stream stream used for storing data inside pbuf
- * @retval void
  */
 static err_t
 snmp_trap_header_enc_v2c_specific(struct snmp_msg_trap *trap, struct snmp_pbuf_stream *pbuf_stream)
@@ -818,7 +816,6 @@ snmp_trap_header_enc_v2c_specific(struct snmp_msg_trap *trap, struct snmp_pbuf_s
  *
  * @param trap Trap message
  * @param pbuf_stream stream used for storing data inside pbuf
- * @retval void
  */
 static err_t
 snmp_trap_header_enc(struct snmp_msg_trap *trap, struct snmp_pbuf_stream *pbuf_stream)
