@@ -1,6 +1,6 @@
 [package]
 name = "lwip"
-version = "0.3.15"
+version = "0.4.0"
 edition = "2021"
 description = "Rust bindings for the lwIP TCP/IP stack"
 license = "MIT/Apache-2.0"
@@ -16,11 +16,11 @@ crate-type = ["lib", "cdylib"]
 path = "rust/lib.rs"
 
 [dependencies]
-bytes = "1"
-futures = "0.3"
-log = "0.4"
-thiserror = "1"
-tokio = { version = "1", features = [
+bytes = "1.12.1"
+futures = "0.3.33"
+log = "0.4.33"
+thiserror = "2.0.19"
+tokio = { version = "1.53.1", features = [
   "sync",
   "io-util",
   "net",
@@ -30,5 +30,5 @@ tokio = { version = "1", features = [
 ] }
 
 [build-dependencies]
-bindgen = "0.69"
-cc = "1.0"
+bindgen = "0.72.1"
+cc = "1.4.0"
