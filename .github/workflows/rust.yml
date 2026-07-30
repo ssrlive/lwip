@@ -29,3 +29,23 @@ jobs:
       run: cargo build --verbose --all-features --tests --examples
     - name: Run tests
       run: cargo test --verbose
+
+  apple-cross:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - aarch64-apple-ios
+          - aarch64-apple-ios-sim
+          - aarch64-apple-tvos
+          - aarch64-apple-tvos-sim
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install target
+      run: rustup target add ${{ matrix.target }}
+    # `cargo check` still runs build.rs, which is where all the Apple SDK
+    # detection and bindgen wiring lives.
+    - name: Check
+      run: cargo check --target ${{ matrix.target }} -vv

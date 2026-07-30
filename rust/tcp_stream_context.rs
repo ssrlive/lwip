@@ -11,7 +11,6 @@ use super::LWIPMutexGuard;
 
 pub struct TcpStreamContextInner {
     pub local_addr: SocketAddr,
-    pub remote_addr: SocketAddr,
     pub read_tx: Option<UnboundedSender<Vec<u8>>>,
     pub read_rx: UnboundedReceiver<Vec<u8>>,
     pub errored: bool,
@@ -56,14 +55,12 @@ unsafe impl Sync for TcpStreamContext {}
 impl TcpStreamContext {
     pub fn new(
         local_addr: SocketAddr,
-        remote_addr: SocketAddr,
         read_tx: UnboundedSender<Vec<u8>>,
         read_rx: UnboundedReceiver<Vec<u8>>,
     ) -> Self {
         TcpStreamContext {
             inner: UnsafeCell::new(TcpStreamContextInner {
                 local_addr,
-                remote_addr,
                 read_tx: Some(read_tx),
                 read_rx,
                 errored: false,
